@@ -9,7 +9,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
     <div class="layout">
       <aside class="sidebar">
         <div class="sidebar-header">
-          <div class="sidebar-logo">Ralph <span>Loop Module</span></div>
+          <div class="sidebar-logo">Módulo de <span>Tarefas</span></div>
         </div>
         <nav class="sidebar-nav">
           <a class="nav-item" routerLink="/projects" routerLinkActive="active">

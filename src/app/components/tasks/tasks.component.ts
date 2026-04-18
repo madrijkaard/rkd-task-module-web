@@ -24,13 +24,13 @@ import { Task } from '../../models';
           <h1>Tarefas</h1>
         </div>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" disabled>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Executar Tarefas
-          </button>
           <button class="btn btn-primary" (click)="openModal()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nova Tarefa
+          </button>
+          <button class="btn btn-ghost" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Executar Tarefas
           </button>
         </div>
       </div>
@@ -97,14 +97,14 @@ import { Task } from '../../models';
                 <input class="form-control" type="text" [(ngModel)]="formName"
                   placeholder="Ex: VALIDAR TOKEN" maxlength="50"
                   (input)="onNameInput($event)" />
-                <span style="font-size:11px;color:var(--text-muted)">Apenas letras maiúsculas e números</span>
+                <span style="font-size:11px;color:var(--text-muted)">Maiúsculas, números, - _ /</span>
               </div>
               <div class="form-group">
                 <label>Tipo</label>
                 <input class="form-control" type="text" [(ngModel)]="formType"
                   placeholder="Ex: SCRIPT" maxlength="50"
                   (input)="onTypeInput($event)" />
-                <span style="font-size:11px;color:var(--text-muted)">Apenas letras maiúsculas e números</span>
+                <span style="font-size:11px;color:var(--text-muted)">Maiúsculas, números, - _ /</span>
               </div>
               <div class="form-group">
                 <label>Path</label>
@@ -183,14 +183,14 @@ export class TasksComponent implements OnInit {
 
   onNameInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    const clean = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const clean = input.value.toUpperCase().replace(/[^A-Z0-9_/-]/g, '');
     this.formName = clean;
     input.value = clean;
   }
 
   onTypeInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    const clean = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const clean = input.value.toUpperCase().replace(/[^A-Z0-9_/-]/g, '');
     this.formType = clean;
     input.value = clean;
   }

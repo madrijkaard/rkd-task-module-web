@@ -85,7 +85,7 @@ import { UseCase } from '../../models';
               <input class="form-control" type="text" [(ngModel)]="formName"
                 placeholder="Ex: AUTENTICACAO USUARIO" maxlength="50"
                 (input)="onNameInput($event)" />
-              <span style="font-size:11px;color:var(--text-muted)">Apenas letras maiúsculas e números</span>
+              <span style="font-size:11px;color:var(--text-muted)">Maiúsculas, números, - _ /</span>
             </div>
             <div class="form-group">
               <label>Prompt</label>
@@ -150,7 +150,7 @@ export class UseCasesComponent implements OnInit {
 
   onNameInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    const clean = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const clean = input.value.toUpperCase().replace(/[^A-Z0-9_/-]/g, '');
     this.formName = clean;
     input.value = clean;
   }
