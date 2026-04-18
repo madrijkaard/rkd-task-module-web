@@ -1,0 +1,57 @@
+export interface Project {
+  id: number;
+  name: string;
+  created_date: string;
+  last_modified_date: string;
+}
+
+export interface ProjectPayload {
+  name: string;
+}
+
+export interface UseCase {
+  id: number;
+  name: string;
+  prompt: string;
+  created_date: string;
+  last_modified_date: string;
+  project_id: number;
+}
+
+export interface UseCasePayload {
+  name: string;
+  prompt: string;
+  project_id: number;
+}
+
+export interface Task {
+  id: number;
+  name: string;
+  sequence: number;
+  type: string;
+  path: string;
+  prompt: string;
+  created_date: string;
+  last_modified_date: string;
+  use_case_id: number;
+}
+
+export interface TaskPayload {
+  name: string;
+  sequence: number;
+  type: string;
+  path: string;
+  prompt: string;
+  use_case_id: number;
+}
+
+export interface Iteration {
+  id: number;
+  created_date: string;
+  last_modified_date: string;
+  task_id: number;
+}
+
+export interface IterationPayload {
+  task_id: number;
+}
