@@ -13,31 +13,31 @@ import { Iteration } from '../../models';
       <div class="page-header">
         <div>
           <div class="breadcrumb">
-            <a routerLink="/projects">Projects</a>
+            <a routerLink="/projects">Projetos</a>
             <span>›</span>
             <a [routerLink]="['/projects', projectId(), 'use-cases']"
-               [queryParams]="{ projectName: projectName() }">{{ projectName() }}</a>
+               [queryParams]="{ projectId: projectId() }">Projeto</a>
             <span>›</span>
             <a [routerLink]="['/use-cases', useCaseId(), 'tasks']"
-               [queryParams]="{ useCaseName: useCaseName(), projectId: projectId(), projectName: projectName() }">{{ useCaseName() }}</a>
+               [queryParams]="{ useCaseId: useCaseId(), projectId: projectId() }">Casos de Uso</a>
             <span>›</span>
-            <span>{{ taskName() }}</span>
+            <span>Tarefas</span>
           </div>
-          <h1>Iterations</h1>
+          <h1>Iterações</h1>
         </div>
         <button class="btn btn-primary" (click)="create()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Executar Tarefas
+          Executar Tarefa
         </button>
       </div>
 
       <div class="card">
         @if (loading()) {
-          <div class="loading">Carregando iterations...</div>
+          <div class="loading">Carregando iterações...</div>
         } @else if (iterations().length === 0) {
           <div class="empty-state">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            <p>Nenhuma iteration encontrada. Execute as tarefas para criar!</p>
+            <p>Nenhuma iteração encontrada. Execute a tarefa para criar!</p>
           </div>
         } @else {
           <div class="table-wrapper">
@@ -78,11 +78,11 @@ import { Iteration } from '../../models';
       <div class="modal-backdrop" (click)="cancelDelete()">
         <div class="modal" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>Excluir Iteration</h2>
+            <h2>Excluir Iteração</h2>
             <button class="btn-close" (click)="cancelDelete()">&#x2715;</button>
           </div>
           <div class="modal-body">
-            <p>Tem certeza que deseja excluir a iteration <strong>#{{ deletingIt()?.id }}</strong>?</p>
+            <p>Tem certeza que deseja excluir a iteração <strong>#{{ deletingIt()?.id }}</strong>?</p>
           </div>
           <div class="modal-footer">
             <button class="btn btn-ghost" (click)="cancelDelete()">Cancelar</button>
@@ -99,11 +99,8 @@ export class IterationsComponent implements OnInit {
   showDeleteConfirm = signal(false);
   deletingIt = signal<Iteration | null>(null);
   taskId = signal(0);
-  taskName = signal('');
   useCaseId = signal(0);
-  useCaseName = signal('');
   projectId = signal(0);
-  projectName = signal('');
 
   constructor(private api: ApiService, private route: ActivatedRoute, private router: Router) {}
 
@@ -111,11 +108,8 @@ export class IterationsComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('taskId'));
     this.taskId.set(id);
     const qp = this.route.snapshot.queryParamMap;
-    this.taskName.set(qp.get('taskName') || `Task ${id}`);
     this.useCaseId.set(Number(qp.get('useCaseId')) || 0);
-    this.useCaseName.set(qp.get('useCaseName') || 'Use Case');
     this.projectId.set(Number(qp.get('projectId')) || 0);
-    this.projectName.set(qp.get('projectName') || 'Projeto');
     this.load();
   }
 

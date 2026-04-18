@@ -14,25 +14,25 @@ import { UseCase } from '../../models';
       <div class="page-header">
         <div>
           <div class="breadcrumb">
-            <a routerLink="/projects">Projects</a>
+            <a routerLink="/projects">Projetos</a>
             <span>›</span>
-            <span>{{ projectName() }}</span>
+            <span>Projeto</span>
           </div>
-          <h1>Use Cases</h1>
+          <h1>Casos de Uso</h1>
         </div>
         <button class="btn btn-primary" (click)="openModal()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Novo Use Case
+          Novo Caso de Uso
         </button>
       </div>
 
       <div class="card">
         @if (loading()) {
-          <div class="loading">Carregando use cases...</div>
+          <div class="loading">Carregando casos de uso...</div>
         } @else if (useCases().length === 0) {
           <div class="empty-state">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <p>Nenhum use case encontrado. Crie o primeiro!</p>
+            <p>Nenhum caso de uso encontrado. Crie o primeiro!</p>
           </div>
         } @else {
           <div class="table-wrapper">
@@ -76,13 +76,16 @@ import { UseCase } from '../../models';
       <div class="modal-backdrop" (click)="closeModal()">
         <div class="modal" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>{{ editingUC() ? 'Editar Use Case' : 'Novo Use Case' }}</h2>
+            <h2>{{ editingUC() ? 'Editar Caso de Uso' : 'Novo Caso de Uso' }}</h2>
             <button class="btn-close" (click)="closeModal()">&#x2715;</button>
           </div>
           <div class="modal-body">
             <div class="form-group">
               <label>Nome</label>
-              <input class="form-control" type="text" [(ngModel)]="formName" placeholder="Nome do use case" maxlength="50" />
+              <input class="form-control" type="text" [(ngModel)]="formName"
+                placeholder="Ex: AUTENTICACAO USUARIO" maxlength="50"
+                (input)="onNameInput($event)" />
+              <span style="font-size:11px;color:var(--text-muted)">Apenas letras maiúsculas e números</span>
             </div>
             <div class="form-group">
               <label>Prompt</label>
@@ -103,11 +106,11 @@ import { UseCase } from '../../models';
       <div class="modal-backdrop" (click)="cancelDelete()">
         <div class="modal" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>Excluir Use Case</h2>
+            <h2>Excluir Caso de Uso</h2>
             <button class="btn-close" (click)="cancelDelete()">&#x2715;</button>
           </div>
           <div class="modal-body">
-            <p>Tem certeza que deseja excluir o use case <strong>{{ deletingUC()?.name }}</strong>?</p>
+            <p>Tem certeza que deseja excluir o caso de uso <strong>{{ deletingUC()?.name }}</strong>?</p>
           </div>
           <div class="modal-footer">
             <button class="btn btn-ghost" (click)="cancelDelete()">Cancelar</button>
@@ -126,7 +129,6 @@ export class UseCasesComponent implements OnInit {
   editingUC = signal<UseCase | null>(null);
   deletingUC = signal<UseCase | null>(null);
   projectId = signal(0);
-  projectName = signal('');
   formName = '';
   formPrompt = '';
 
@@ -135,8 +137,6 @@ export class UseCasesComponent implements OnInit {
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('projectId'));
     this.projectId.set(id);
-    const name = this.route.snapshot.queryParamMap.get('projectName') || `Projeto ${id}`;
-    this.projectName.set(name);
     this.load();
   }
 
@@ -148,10 +148,17 @@ export class UseCasesComponent implements OnInit {
     });
   }
 
+  onNameInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const clean = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    this.formName = clean;
+    input.value = clean;
+  }
+
   goToTasks(uc: UseCase) {
     this.router.navigate(
       ['/use-cases', uc.id, 'tasks'],
-      { queryParams: { useCaseName: uc.name, projectId: this.projectId(), projectName: this.projectName() } }
+      { queryParams: { useCaseId: uc.id, projectId: this.projectId() } }
     );
   }
 

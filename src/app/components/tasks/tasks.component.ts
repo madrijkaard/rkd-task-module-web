@@ -14,28 +14,34 @@ import { Task } from '../../models';
       <div class="page-header">
         <div>
           <div class="breadcrumb">
-            <a routerLink="/projects">Projects</a>
+            <a routerLink="/projects">Projetos</a>
             <span>›</span>
             <a [routerLink]="['/projects', projectId(), 'use-cases']"
-               [queryParams]="{ projectName: projectName() }">{{ projectName() }}</a>
+               [queryParams]="{ projectId: projectId() }">Projeto</a>
             <span>›</span>
-            <span>{{ useCaseName() }}</span>
+            <span>Casos de Uso</span>
           </div>
-          <h1>Tasks</h1>
+          <h1>Tarefas</h1>
         </div>
-        <button class="btn btn-primary" (click)="openModal()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nova Task
-        </button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Executar Tarefas
+          </button>
+          <button class="btn btn-primary" (click)="openModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nova Tarefa
+          </button>
+        </div>
       </div>
 
       <div class="card">
         @if (loading()) {
-          <div class="loading">Carregando tasks...</div>
+          <div class="loading">Carregando tarefas...</div>
         } @else if (tasks().length === 0) {
           <div class="empty-state">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            <p>Nenhuma task encontrada. Crie a primeira!</p>
+            <p>Nenhuma tarefa encontrada. Crie a primeira!</p>
           </div>
         } @else {
           <div class="table-wrapper">
@@ -81,27 +87,37 @@ import { Task } from '../../models';
       <div class="modal-backdrop" (click)="closeModal()">
         <div class="modal" style="max-width:540px" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>{{ editingTask() ? 'Editar Task' : 'Nova Task' }}</h2>
+            <h2>{{ editingTask() ? 'Editar Tarefa' : 'Nova Tarefa' }}</h2>
             <button class="btn-close" (click)="closeModal()">&#x2715;</button>
           </div>
           <div class="modal-body">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
               <div class="form-group" style="grid-column:1/-1">
                 <label>Nome</label>
-                <input class="form-control" type="text" [(ngModel)]="formName" placeholder="Nome da task" maxlength="50" />
+                <input class="form-control" type="text" [(ngModel)]="formName"
+                  placeholder="Ex: VALIDAR TOKEN" maxlength="50"
+                  (input)="onNameInput($event)" />
+                <span style="font-size:11px;color:var(--text-muted)">Apenas letras maiúsculas e números</span>
               </div>
               <div class="form-group">
                 <label>Tipo</label>
-                <input class="form-control" type="text" [(ngModel)]="formType" placeholder="Ex: script, api..." maxlength="50" />
+                <input class="form-control" type="text" [(ngModel)]="formType"
+                  placeholder="Ex: SCRIPT" maxlength="50"
+                  (input)="onTypeInput($event)" />
+                <span style="font-size:11px;color:var(--text-muted)">Apenas letras maiúsculas e números</span>
               </div>
               <div class="form-group">
                 <label>Path</label>
-                <input class="form-control" type="text" [(ngModel)]="formPath" placeholder="/caminho/do/arquivo" />
+                <input class="form-control" type="text" [(ngModel)]="formPath"
+                  placeholder="/caminho/do/arquivo"
+                  (input)="onPathInput($event)" />
+                <span style="font-size:11px;color:var(--text-muted)">Minúsculas, letras, números, / - _</span>
               </div>
             </div>
             <div class="form-group">
               <label>Prompt</label>
-              <textarea class="form-control" [(ngModel)]="formPrompt" placeholder="Descreva o prompt..." style="min-height:100px"></textarea>
+              <textarea class="form-control" [(ngModel)]="formPrompt"
+                placeholder="Descreva o prompt..." style="min-height:100px"></textarea>
             </div>
           </div>
           <div class="modal-footer">
@@ -118,11 +134,11 @@ import { Task } from '../../models';
       <div class="modal-backdrop" (click)="cancelDelete()">
         <div class="modal" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>Excluir Task</h2>
+            <h2>Excluir Tarefa</h2>
             <button class="btn-close" (click)="cancelDelete()">&#x2715;</button>
           </div>
           <div class="modal-body">
-            <p>Tem certeza que deseja excluir a task <strong>{{ deletingTask()?.name }}</strong>?</p>
+            <p>Tem certeza que deseja excluir a tarefa <strong>{{ deletingTask()?.name }}</strong>?</p>
           </div>
           <div class="modal-footer">
             <button class="btn btn-ghost" (click)="cancelDelete()">Cancelar</button>
@@ -141,9 +157,7 @@ export class TasksComponent implements OnInit {
   editingTask = signal<Task | null>(null);
   deletingTask = signal<Task | null>(null);
   useCaseId = signal(0);
-  useCaseName = signal('');
   projectId = signal(0);
-  projectName = signal('');
   formName = '';
   formType = '';
   formPath = '';
@@ -155,9 +169,7 @@ export class TasksComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('useCaseId'));
     this.useCaseId.set(id);
     const qp = this.route.snapshot.queryParamMap;
-    this.useCaseName.set(qp.get('useCaseName') || `Use Case ${id}`);
     this.projectId.set(Number(qp.get('projectId')) || 0);
-    this.projectName.set(qp.get('projectName') || 'Projeto');
     this.load();
   }
 
@@ -169,18 +181,31 @@ export class TasksComponent implements OnInit {
     });
   }
 
+  onNameInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const clean = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    this.formName = clean;
+    input.value = clean;
+  }
+
+  onTypeInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const clean = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    this.formType = clean;
+    input.value = clean;
+  }
+
+  onPathInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const clean = input.value.toLowerCase().replace(/[^a-z0-9/_-]/g, '');
+    this.formPath = clean;
+    input.value = clean;
+  }
+
   goToIterations(task: Task) {
     this.router.navigate(
       ['/tasks', task.id, 'iterations'],
-      {
-        queryParams: {
-          taskName: task.name,
-          useCaseId: this.useCaseId(),
-          useCaseName: this.useCaseName(),
-          projectId: this.projectId(),
-          projectName: this.projectName()
-        }
-      }
+      { queryParams: { taskId: task.id, useCaseId: this.useCaseId(), projectId: this.projectId() } }
     );
   }
 
@@ -204,11 +229,9 @@ export class TasksComponent implements OnInit {
     const name = this.formName.trim();
     if (!name) return;
     const editing = this.editingTask();
-    // sequence: mantém o existente ao editar, ou envia 0 ao criar (backend gera automaticamente)
     const sequence = editing?.sequence ?? 0;
     const payload = {
-      name,
-      sequence,
+      name, sequence,
       type: this.formType.trim(),
       path: this.formPath.trim(),
       prompt: this.formPrompt.trim(),

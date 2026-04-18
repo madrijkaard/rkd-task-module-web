@@ -13,7 +13,7 @@ import { Project } from '../../models';
     <div class="page">
       <div class="page-header">
         <div>
-          <h1>Projects</h1>
+          <h1>Projetos</h1>
         </div>
         <button class="btn btn-primary" (click)="openModal()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -76,7 +76,9 @@ import { Project } from '../../models';
             <div class="form-group">
               <label for="pname">Nome do Projeto</label>
               <input id="pname" class="form-control" type="text" [(ngModel)]="formName"
-                placeholder="Ex: Sistema de Gestão" maxlength="50" />
+                placeholder="Ex: SISTEMA GESTAO" maxlength="50"
+                (input)="onNameInput($event)" />
+              <span style="font-size:11px;color:var(--text-muted)">Apenas letras maiúsculas e números</span>
             </div>
           </div>
           <div class="modal-footer">
@@ -129,11 +131,15 @@ export class ProjectsComponent implements OnInit {
     });
   }
 
+  onNameInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const clean = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    this.formName = clean;
+    input.value = clean;
+  }
+
   goToUseCases(project: Project) {
-    this.router.navigate(
-      ['/projects', project.id, 'use-cases'],
-      { queryParams: { projectName: project.name } }
-    );
+    this.router.navigate(['/projects', project.id, 'use-cases'], { queryParams: { projectId: project.id } });
   }
 
   openModal(project?: Project) {
