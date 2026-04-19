@@ -28,7 +28,7 @@ import { Task } from '../../models';
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nova Tarefa
           </button>
-          <button class="btn btn-ghost" (click)="openExecuteModal()">
+          <button class="btn btn-ghost" disabled>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Executar Tarefas
           </button>
@@ -96,7 +96,6 @@ import { Task } from '../../models';
             <button class="btn-close" (click)="closeModal()">&#x2715;</button>
           </div>
           <div class="modal-body">
-            <!-- Row 1: Nome -->
             <div class="form-group">
               <label>Nome</label>
               <input class="form-control" type="text" [(ngModel)]="formName"
@@ -104,8 +103,6 @@ import { Task } from '../../models';
                 (input)="onNameInput($event)" />
               <span style="font-size:11px;color:var(--text-muted)">Maiúsculas, números, - _ /</span>
             </div>
-
-            <!-- Row 2: Tipo + Path -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
               <div class="form-group">
                 <label>Tipo</label>
@@ -131,26 +128,20 @@ import { Task } from '../../models';
               <div class="form-group">
                 <label>Path</label>
                 <input class="form-control" type="text" [(ngModel)]="formPath"
-                  placeholder="/caminho/do/arquivo"
-                  (input)="onPathInput($event)" />
+                  placeholder="/caminho/do/arquivo" (input)="onPathInput($event)" />
                 <span style="font-size:11px;color:var(--text-muted)">Minúsculas, letras, números, / - _</span>
               </div>
             </div>
-
-            <!-- Row 3: System Prompt -->
             <div class="form-group">
               <label>System Prompt</label>
               <textarea class="form-control" [(ngModel)]="formSystemPrompt"
                 placeholder="Instruções de sistema para o modelo de IA..." style="min-height:90px"></textarea>
             </div>
-
-            <!-- Row 4: User Prompt -->
             <div class="form-group">
               <label>User Prompt</label>
               <textarea class="form-control" [(ngModel)]="formUserPrompt"
                 placeholder="Instrução do usuário / tarefa a executar..." style="min-height:90px"></textarea>
             </div>
-
             @if (saveError()) {
               <div style="padding:10px 14px;background:var(--danger-light);border:1px solid #FECACA;border-radius:var(--radius);color:var(--danger);font-size:13px">
                 {{ saveError() }}
@@ -161,86 +152,6 @@ import { Task } from '../../models';
             <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
             <button class="btn btn-primary" (click)="save()" [disabled]="!formName.trim() || !formType">
               {{ editingTask() ? 'Salvar' : 'Criar' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- ══ EXECUTE MODAL ══ -->
-    @if (showExecuteModal()) {
-      <div class="modal-backdrop" (click)="closeExecuteModal()">
-        <div class="modal" (click)="$event.stopPropagation()">
-          <div class="modal-header">
-            <h2>Executar Tarefas</h2>
-            <button class="btn-close" (click)="closeExecuteModal()">&#x2715;</button>
-          </div>
-          <div class="modal-body">
-            <p style="font-size:13px;color:var(--text-muted);margin-bottom:4px">
-              Selecione o modelo de IA que será utilizado para executar as {{ tasks().length }} tarefa(s) deste caso de uso.
-            </p>
-
-            <div class="form-group">
-              <label>Modelo</label>
-              @if (modelsLoading()) {
-                <div class="form-control" style="color:var(--text-muted);display:flex;align-items:center;gap:8px">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                  Buscando modelos disponíveis...
-                </div>
-              } @else if (modelsError()) {
-                <div style="color:var(--danger);font-size:13px">
-                  Falha ao buscar modelos do engine.
-                  <button class="btn btn-ghost btn-sm" style="margin-top:6px;display:block" (click)="loadModels()">Tentar novamente</button>
-                </div>
-              } @else if (engineModels().length === 0) {
-                <div style="color:var(--text-muted);font-size:13px">Nenhum modelo disponível no engine.</div>
-              } @else {
-                <select class="form-control" [(ngModel)]="selectedModel">
-                  <option value="" disabled>Selecione o modelo...</option>
-                  @for (m of engineModels(); track m) {
-                    <option [value]="m">{{ m }}</option>
-                  }
-                </select>
-              }
-            </div>
-
-            @if (executeResults().length > 0) {
-              <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
-                @for (r of executeResults(); track r.taskId) {
-                  <div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 10px;border-radius:var(--radius);background:var(--bg)">
-                    @if (r.status === 'running') {
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="animation:spin 1s linear infinite;flex-shrink:0"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                    } @else if (r.status === 'ok') {
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
-                    } @else {
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.5" style="flex-shrink:0"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    }
-                    <span style="flex:1">{{ r.taskName }}</span>
-                    <span [style.color]="r.status === 'ok' ? 'var(--success)' : r.status === 'error' ? 'var(--danger)' : 'var(--text-muted)'">
-                      {{ r.status === 'running' ? 'Executando...' : r.status === 'ok' ? 'Concluído' : r.message }}
-                    </span>
-                  </div>
-                }
-              </div>
-            }
-
-            @if (executeGlobalError()) {
-              <div style="padding:10px 14px;background:var(--danger-light);border:1px solid #FECACA;border-radius:var(--radius);color:var(--danger);font-size:13px">
-                {{ executeGlobalError() }}
-              </div>
-            }
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-ghost" (click)="closeExecuteModal()" [disabled]="executing()">Fechar</button>
-            <button class="btn btn-primary" (click)="executeAll()"
-              [disabled]="!selectedModel || executing() || engineModels().length === 0">
-              @if (executing()) {
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                Executando...
-              } @else {
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                Executar
-              }
             </button>
           </div>
         </div>
@@ -279,32 +190,17 @@ import { Task } from '../../models';
 export class TasksComponent implements OnInit {
   tasks = signal<Task[]>([]);
   taskTypes = signal<string[]>([]);
-  engineModels = signal<string[]>([]);
-
   loading = signal(true);
   typesLoading = signal(false);
   typesError = signal(false);
-  modelsLoading = signal(false);
-  modelsError = signal(false);
-  executing = signal(false);
-
   showModal = signal(false);
-  showExecuteModal = signal(false);
   showDeleteConfirm = signal(false);
-
   editingTask = signal<Task | null>(null);
   deletingTask = signal<Task | null>(null);
-
   deleteError = signal('');
   saveError = signal('');
-  executeGlobalError = signal('');
-
-  executeResults = signal<{ taskId: number; taskName: string; status: 'running' | 'ok' | 'error'; message: string }[]>([]);
-
   useCaseId = signal(0);
   projectId = signal(0);
-
-  selectedModel = '';
   formName = '';
   formType = '';
   formPath = '';
@@ -336,15 +232,6 @@ export class TasksComponent implements OnInit {
     this.api.getTaskTypes().subscribe({
       next: data => { this.taskTypes.set(data); this.typesLoading.set(false); },
       error: () => { this.typesError.set(true); this.typesLoading.set(false); }
-    });
-  }
-
-  loadModels() {
-    this.modelsLoading.set(true);
-    this.modelsError.set(false);
-    this.api.getEngineModels().subscribe({
-      next: data => { this.engineModels.set(data); this.modelsLoading.set(false); },
-      error: () => { this.modelsError.set(true); this.modelsLoading.set(false); }
     });
   }
 
@@ -392,73 +279,19 @@ export class TasksComponent implements OnInit {
     this.saveError.set('');
     const editing = this.editingTask();
     const payload = {
-      name,
-      type: this.formType,
+      name, type: this.formType,
       path: this.formPath.trim(),
       system_prompt: this.formSystemPrompt.trim(),
       user_prompt: this.formUserPrompt.trim(),
       use_case_id: this.useCaseId()
     };
-    const obs = editing
-      ? this.api.updateTask(editing.id, payload)
-      : this.api.createTask(payload);
+    const obs = editing ? this.api.updateTask(editing.id, payload) : this.api.createTask(payload);
     obs.subscribe({
       next: () => { this.closeModal(); this.load(); },
       error: (err) => this.saveError.set(err?.error?.message || 'Erro ao salvar. Tente novamente.')
     });
   }
 
-  // ── Execute ──
-  openExecuteModal() {
-    this.executeResults.set([]);
-    this.executeGlobalError.set('');
-    this.selectedModel = '';
-    this.showExecuteModal.set(true);
-    this.loadModels();
-  }
-
-  closeExecuteModal() {
-    if (this.executing()) return;
-    this.showExecuteModal.set(false);
-    this.executeResults.set([]);
-    this.executeGlobalError.set('');
-    // Recarrega lista pois podem ter sido criadas iterações
-    this.load();
-  }
-
-  async executeAll() {
-    if (!this.selectedModel || this.executing()) return;
-    const taskList = this.tasks();
-    if (!taskList.length) return;
-
-    this.executing.set(true);
-    this.executeGlobalError.set('');
-    this.executeResults.set(taskList.map(t => ({ taskId: t.id, taskName: t.name, status: 'running', message: '' })));
-
-    for (const task of taskList) {
-      await new Promise<void>(resolve => {
-        this.api.executeTask(task.id, { model: this.selectedModel }).subscribe({
-          next: () => {
-            this.executeResults.update(list =>
-              list.map(r => r.taskId === task.id ? { ...r, status: 'ok' } : r)
-            );
-            resolve();
-          },
-          error: (err) => {
-            const msg = err?.error?.message || 'Erro ao executar';
-            this.executeResults.update(list =>
-              list.map(r => r.taskId === task.id ? { ...r, status: 'error', message: msg } : r)
-            );
-            resolve();
-          }
-        });
-      });
-    }
-
-    this.executing.set(false);
-  }
-
-  // ── Delete ──
   confirmDelete(task: Task) { this.deletingTask.set(task); this.showDeleteConfirm.set(true); }
   cancelDelete() { this.showDeleteConfirm.set(false); this.deletingTask.set(null); this.deleteError.set(''); }
 
