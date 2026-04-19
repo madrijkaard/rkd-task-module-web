@@ -110,13 +110,18 @@ import { Iteration } from '../../models';
 
             @if (processStatus() === 'running') {
               <!-- Spinner animado -->
-              <div style="position:relative;width:72px;height:72px;margin:0 auto 24px">
-                <svg width="72" height="72" viewBox="0 0 72 72" fill="none" style="position:absolute;top:0;left:0;animation:spin 1.2s linear infinite">
-                  <circle cx="36" cy="36" r="30" stroke="var(--primary)" stroke-width="5" stroke-linecap="round"
-                    stroke-dasharray="120 60" />
-                </svg>
-                <svg width="72" height="72" viewBox="0 0 72 72" fill="none" style="position:absolute;top:0;left:0;opacity:0.15">
-                  <circle cx="36" cy="36" r="30" stroke="var(--primary)" stroke-width="5"/>
+              <div style="width:72px;height:72px;margin:0 auto 24px">
+                <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+                  <!-- Track -->
+                  <circle cx="36" cy="36" r="30" stroke="var(--primary)" stroke-width="5" opacity="0.15"/>
+                  <!-- Spinning arc -->
+                  <circle cx="36" cy="36" r="30" stroke="var(--primary)" stroke-width="5"
+                    stroke-linecap="round" stroke-dasharray="100 88" stroke-dashoffset="0"
+                    transform-origin="36 36">
+                    <animateTransform attributeName="transform" type="rotate"
+                      from="0 36 36" to="360 36 36"
+                      dur="1s" repeatCount="indefinite"/>
+                  </circle>
                 </svg>
               </div>
               <h2 style="font-size:18px;font-weight:600;margin-bottom:8px;color:var(--text)">Processando...</h2>
@@ -186,7 +191,6 @@ import { Iteration } from '../../models';
       </div>
     }
 
-    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
   `
 })
 export class IterationsComponent implements OnInit {

@@ -184,7 +184,6 @@ import { Task } from '../../models';
       </div>
     }
 
-    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
   `
 })
 export class TasksComponent implements OnInit {

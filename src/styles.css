@@ -416,3 +416,13 @@ select.form-control option {
   background: var(--input-bg);
   color: var(--text);
 }
+
+/* ── Animations ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-center {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
