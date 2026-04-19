@@ -426,3 +426,14 @@ select.form-control option {
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to   { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+/* ── Processing spinner ── */
+.proc-spinner {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  border-top-color: var(--primary);
+  border-right-color: var(--primary);
+  animation: spin 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
