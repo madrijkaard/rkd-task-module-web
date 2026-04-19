@@ -44,7 +44,7 @@ import { Project } from '../../models';
                 @for (project of projects(); track project.id) {
                   <tr class="row-link">
                     <td>{{ project.id }}</td>
-                    <td class="td-name" (click)="goToUseCases(project)">{{ project.name }}</td>
+                    <td class="td-name" (click)="goToUseCases(project)"><span class="name-cell" [title]="project.name">{{ project.name }}</span></td>
                     <td (click)="goToUseCases(project)">{{ project.last_modified_date | date:'dd/MM/yyyy HH:mm' }}</td>
                     <td>
                       <div class="td-actions">
@@ -100,10 +100,17 @@ import { Project } from '../../models';
           </div>
           <div class="modal-body">
             <p>Tem certeza que deseja excluir o projeto <strong>{{ deletingProject()?.name }}</strong>?</p>
+            @if (deleteError()) {
+              <div style="margin-top:12px;padding:10px 14px;background:var(--danger-light);border:1px solid #FECACA;border-radius:var(--radius);color:var(--danger);font-size:13px">
+                {{ deleteError() }}
+              </div>
+            }
           </div>
           <div class="modal-footer">
-            <button class="btn btn-ghost" (click)="cancelDelete()">Cancelar</button>
-            <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" (click)="deleteProject()">Excluir</button>
+            <button class="btn btn-ghost" (click)="cancelDelete()">{{ deleteError() ? 'Fechar' : 'Cancelar' }}</button>
+            @if (!deleteError()) {
+              <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" (click)="deleteProject()">Excluir</button>
+            }
           </div>
         </div>
       </div>
@@ -117,6 +124,7 @@ export class ProjectsComponent implements OnInit {
   showDeleteConfirm = signal(false);
   editingProject = signal<Project | null>(null);
   deletingProject = signal<Project | null>(null);
+  deleteError = signal('');
   formName = '';
 
   constructor(private api: ApiService, private router: Router) {}
@@ -162,11 +170,17 @@ export class ProjectsComponent implements OnInit {
   }
 
   confirmDelete(project: Project) { this.deletingProject.set(project); this.showDeleteConfirm.set(true); }
-  cancelDelete() { this.showDeleteConfirm.set(false); this.deletingProject.set(null); }
+  cancelDelete() { this.showDeleteConfirm.set(false); this.deletingProject.set(null); this.deleteError.set(''); }
 
   deleteProject() {
     const p = this.deletingProject();
     if (!p) return;
-    this.api.deleteProject(p.id).subscribe(() => { this.cancelDelete(); this.load(); });
+    this.api.deleteProject(p.id).subscribe({
+      next: () => { this.cancelDelete(); this.load(); },
+      error: (err) => {
+        const msg = err?.error?.message;
+        this.deleteError.set(msg || 'Erro ao excluir. Tente novamente.');
+      }
+    });
   }
 }

@@ -5,7 +5,8 @@ import {
   Project, ProjectPayload,
   UseCase, UseCasePayload,
   Task, TaskPayload,
-  Iteration, IterationPayload
+  Iteration, IterationPayload,
+  ExecuteTaskPayload
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
@@ -48,6 +49,11 @@ export class ApiService {
     return this.http.delete<{ deleted: boolean }>(`${this.base}/use-cases/${id}`);
   }
 
+  // Task Types
+  getTaskTypes(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/task-types`);
+  }
+
   // Tasks
   getTasksByUseCase(useCaseId: number): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.base}/use-cases/${useCaseId}/tasks`);
@@ -63,6 +69,14 @@ export class ApiService {
   }
   deleteTask(id: number): Observable<{ deleted: boolean }> {
     return this.http.delete<{ deleted: boolean }>(`${this.base}/tasks/${id}`);
+  }
+  executeTask(id: number, payload: ExecuteTaskPayload): Observable<void> {
+    return this.http.post<void>(`${this.base}/tasks/${id}/execute`, payload);
+  }
+
+  // Engine
+  getEngineModels(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/engine/models`);
   }
 
   // Iterations

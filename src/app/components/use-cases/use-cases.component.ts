@@ -41,7 +41,7 @@ import { UseCase } from '../../models';
                 <tr>
                   <th>ID</th>
                   <th>Nome</th>
-                  <th>Prompt</th>
+                  <th>Especificação</th>
                   <th>Modificado em</th>
                   <th></th>
                 </tr>
@@ -50,8 +50,10 @@ import { UseCase } from '../../models';
                 @for (uc of useCases(); track uc.id) {
                   <tr class="row-link">
                     <td>{{ uc.id }}</td>
-                    <td class="td-name" (click)="goToTasks(uc)">{{ uc.name }}</td>
-                    <td (click)="goToTasks(uc)" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted)">{{ uc.prompt }}</td>
+                    <td class="td-name" (click)="goToTasks(uc)">
+                      <span class="name-cell" [title]="uc.name">{{ uc.name }}</span>
+                    </td>
+                    <td (click)="goToTasks(uc)" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted)">{{ uc.specification }}</td>
                     <td (click)="goToTasks(uc)">{{ uc.last_modified_date | date:'dd/MM/yyyy HH:mm' }}</td>
                     <td>
                       <div class="td-actions">
@@ -88,8 +90,9 @@ import { UseCase } from '../../models';
               <span style="font-size:11px;color:var(--text-muted)">Maiúsculas, números, - _ /</span>
             </div>
             <div class="form-group">
-              <label>Prompt</label>
-              <textarea class="form-control" [(ngModel)]="formPrompt" placeholder="Descreva o prompt..."></textarea>
+              <label>Especificação</label>
+              <textarea class="form-control" [(ngModel)]="formSpecification"
+                placeholder="Descreva a especificação do caso de uso..." style="min-height:100px"></textarea>
             </div>
           </div>
           <div class="modal-footer">
@@ -111,10 +114,17 @@ import { UseCase } from '../../models';
           </div>
           <div class="modal-body">
             <p>Tem certeza que deseja excluir o caso de uso <strong>{{ deletingUC()?.name }}</strong>?</p>
+            @if (deleteError()) {
+              <div style="margin-top:12px;padding:10px 14px;background:var(--danger-light);border:1px solid #FECACA;border-radius:var(--radius);color:var(--danger);font-size:13px">
+                {{ deleteError() }}
+              </div>
+            }
           </div>
           <div class="modal-footer">
-            <button class="btn btn-ghost" (click)="cancelDelete()">Cancelar</button>
-            <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" (click)="deleteUC()">Excluir</button>
+            <button class="btn btn-ghost" (click)="cancelDelete()">{{ deleteError() ? 'Fechar' : 'Cancelar' }}</button>
+            @if (!deleteError()) {
+              <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" (click)="deleteUC()">Excluir</button>
+            }
           </div>
         </div>
       </div>
@@ -128,9 +138,10 @@ export class UseCasesComponent implements OnInit {
   showDeleteConfirm = signal(false);
   editingUC = signal<UseCase | null>(null);
   deletingUC = signal<UseCase | null>(null);
+  deleteError = signal('');
   projectId = signal(0);
   formName = '';
-  formPrompt = '';
+  formSpecification = '';
 
   constructor(private api: ApiService, private route: ActivatedRoute, private router: Router) {}
 
@@ -150,7 +161,7 @@ export class UseCasesComponent implements OnInit {
 
   onNameInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    const clean = input.value.toUpperCase().replace(/[^A-Z0-9_/-]/g, '');
+    const clean = input.value.toUpperCase().replace(/[^A-Z0-9_\/-]/g, '');
     this.formName = clean;
     input.value = clean;
   }
@@ -165,16 +176,20 @@ export class UseCasesComponent implements OnInit {
   openModal(uc?: UseCase) {
     this.editingUC.set(uc || null);
     this.formName = uc?.name || '';
-    this.formPrompt = uc?.prompt || '';
+    this.formSpecification = uc?.specification || '';
     this.showModal.set(true);
   }
 
-  closeModal() { this.showModal.set(false); this.formName = ''; this.formPrompt = ''; this.editingUC.set(null); }
+  closeModal() {
+    this.showModal.set(false);
+    this.formName = ''; this.formSpecification = '';
+    this.editingUC.set(null);
+  }
 
   save() {
     const name = this.formName.trim();
     if (!name) return;
-    const payload = { name, prompt: this.formPrompt.trim(), project_id: this.projectId() };
+    const payload = { name, specification: this.formSpecification.trim(), project_id: this.projectId() };
     const editing = this.editingUC();
     if (editing) {
       this.api.updateUseCase(editing.id, payload).subscribe(() => { this.closeModal(); this.load(); });
@@ -184,11 +199,17 @@ export class UseCasesComponent implements OnInit {
   }
 
   confirmDelete(uc: UseCase) { this.deletingUC.set(uc); this.showDeleteConfirm.set(true); }
-  cancelDelete() { this.showDeleteConfirm.set(false); this.deletingUC.set(null); }
+  cancelDelete() { this.showDeleteConfirm.set(false); this.deletingUC.set(null); this.deleteError.set(''); }
 
   deleteUC() {
     const uc = this.deletingUC();
     if (!uc) return;
-    this.api.deleteUseCase(uc.id).subscribe(() => { this.cancelDelete(); this.load(); });
+    this.api.deleteUseCase(uc.id).subscribe({
+      next: () => { this.cancelDelete(); this.load(); },
+      error: (err) => {
+        const msg = err?.error?.message;
+        this.deleteError.set(msg || 'Erro ao excluir. Tente novamente.');
+      }
+    });
   }
 }

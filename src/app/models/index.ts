@@ -12,7 +12,7 @@ export interface ProjectPayload {
 export interface UseCase {
   id: number;
   name: string;
-  prompt: string;
+  specification: string;
   created_date: string;
   last_modified_date: string;
   project_id: number;
@@ -20,7 +20,7 @@ export interface UseCase {
 
 export interface UseCasePayload {
   name: string;
-  prompt: string;
+  specification: string;
   project_id: number;
 }
 
@@ -30,7 +30,8 @@ export interface Task {
   sequence: number;
   type: string;
   path: string;
-  prompt: string;
+  system_prompt: string;
+  user_prompt: string;
   created_date: string;
   last_modified_date: string;
   use_case_id: number;
@@ -38,10 +39,10 @@ export interface Task {
 
 export interface TaskPayload {
   name: string;
-  sequence: number;
   type: string;
   path: string;
-  prompt: string;
+  system_prompt: string;
+  user_prompt: string;
   use_case_id: number;
 }
 
@@ -54,4 +55,8 @@ export interface Iteration {
 
 export interface IterationPayload {
   task_id: number;
+}
+
+export interface ExecuteTaskPayload {
+  model: string;
 }
